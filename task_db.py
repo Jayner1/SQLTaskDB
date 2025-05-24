@@ -1,26 +1,26 @@
 # task_db.py: Console interface for Task Management Database
     # task_db.py: Console interface for Task Management Database
-    # Author: Jason
-    import sqlite3
+    # Author: Jason Yale
+import sqlite3
     
-    def connect_db():
+def connect_db():
         """Connects to SQLite database."""
         conn = sqlite3.connect("task_manager.db")
         return conn
     
-    def execute_sql_file(conn, filename):
+def execute_sql_file(conn, filename):
         """Executes SQL script from file."""
         with open(filename, 'r') as f:
             conn.executescript(f.read())
         conn.commit()
     
-    def table_exists(conn, table_name):
+def table_exists(conn, table_name):
         """Checks if a table exists in the database."""
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
         return cursor.fetchone() is not None
     
-    def initialize_db(conn):
+def initialize_db(conn):
         """Initializes database with tables and sample data if needed."""
         if not table_exists(conn, "Priority"):
             execute_sql_file(conn, "sql/create_tables.sql")
@@ -35,7 +35,7 @@
             else:
                 print("Tables and data already exist")
     
-    def add_task(conn, description, category_id, priority_id):
+def add_task(conn, description, category_id, priority_id):
         """Adds a task to Tasks table."""
         if not description.strip():
             print("Description cannot be empty!")
@@ -54,7 +54,7 @@
         conn.commit()
         print("Task added!")
     
-    def view_tasks(conn):
+def view_tasks(conn):
         """Displays all tasks with categories and priorities in aligned columns."""
         cursor = conn.cursor()
         cursor.execute("""
@@ -68,14 +68,12 @@
             print("No tasks found.")
             return
     
-        # Define column widths
         id_width = 4
         desc_width = 20
         cat_width = 10
         pri_width = 8
         comp_width = 9
     
-        # Print header
         print("\nTasks:")
         header = (f"{'ID':<{id_width}}"
                   f"{'Description':<{desc_width}}"
@@ -85,7 +83,6 @@
         print(header)
         print("-" * (id_width + desc_width + cat_width + pri_width + comp_width))
     
-        # Print tasks
         for task in tasks:
             status = "Yes" if task[2] else "No"
             row = (f"{task[0]:<{id_width}}"
@@ -95,7 +92,7 @@
                    f"{status:<{comp_width}}")
             print(row)
     
-    def mark_complete(conn, task_id):
+def mark_complete(conn, task_id):
         """Marks a task as completed."""
         cursor = conn.cursor()
         cursor.execute("UPDATE Tasks SET is_completed = 1 WHERE task_id = ?", (task_id,))
@@ -105,7 +102,7 @@
             conn.commit()
             print("Task marked complete!")
     
-    def update_priority(conn, task_id, priority_id):
+def update_priority(conn, task_id, priority_id):
         """Updates a task's priority."""
         cursor = conn.cursor()
         cursor.execute("SELECT priority_id FROM Priority WHERE priority_id = ?", (priority_id,))
@@ -119,7 +116,7 @@
             conn.commit()
             print("Task priority updated!")
     
-    def delete_task(conn, task_id):
+def delete_task(conn, task_id):
         """Deletes a task."""
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Tasks WHERE task_id = ?", (task_id,))
@@ -129,7 +126,7 @@
             conn.commit()
             print("Task deleted!")
     
-    def main():
+def main():
         """Runs the menu-driven interface."""
         conn = connect_db()
         initialize_db(conn)
@@ -180,5 +177,5 @@
             else:
                 print("Invalid choice!")
     
-    if __name__ == "__main__":
+if __name__ == "__main__":
         main()
