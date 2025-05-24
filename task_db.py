@@ -70,7 +70,7 @@ def view_tasks(conn):
         id_width = 4
         desc_width = 20
         cat_width = 10
-        pri_width = 8
+        pri_width = 10
         comp_width = 9
     
         print("\nTasks:")
