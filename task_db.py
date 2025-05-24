@@ -1,4 +1,3 @@
-# task_db.py: Console interface for Task Management Database
     # task_db.py: Console interface for Task Management Database
     # Author: Jason Yale
 import sqlite3
