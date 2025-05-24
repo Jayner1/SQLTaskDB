@@ -10,7 +10,7 @@
 
  My purpose is to master SQL table design, foreign key relationships, and JOIN operations while enhancing my Python skills for database integration. This project showcases a practical application of relational databases for task management.
 
- [Software Demo Video](https://youtu.be/abc123)
+ [Software Demo Video](https://youtu.be/8x-0xKT5Jns)
 
  # Relational Database
 
@@ -51,6 +51,6 @@
 
  # Future Work
 
- - Add date/time for task deadlines with range-based queries.
+ - Add date/time for task deadlines.
  - Implement sorting tasks by priority or category.
  - Add a graphical user interface for better usability.
