@@ -21,20 +21,20 @@ def table_exists(conn, table_name):
 
 def initialize_db(conn):
     """Initializes database with tables and sample data if needed."""
-    if not table_exists(conn, "Categories"):
+    if not table_exists(conn, "Priority"):
         execute_sql_file(conn, "sql/create_tables.sql")
         execute_sql_file(conn, "sql/insert_data.sql")
         print("Created tables and inserted sample data")
     else:
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM Categories")
+        cursor.execute("SELECT COUNT(*) FROM Priority")
         if cursor.fetchone()[0] == 0:
             execute_sql_file(conn, "sql/insert_data.sql")
             print("Inserted sample data")
         else:
             print("Tables and data already exist")
 
-def add_task(conn, description, category_id):
+def add_task(conn, description, category_id, priority_id):
     """Adds a task to Tasks table."""
     if not description.strip():
         print("Description cannot be empty!")
@@ -44,17 +44,23 @@ def add_task(conn, description, category_id):
     if not cursor.fetchone():
         print("Invalid category ID!")
         return
-    cursor.execute("INSERT INTO Tasks (description, category_id) VALUES (?, ?)",
-                   (description, category_id))
+    cursor.execute("SELECT priority_id FROM Priority WHERE priority_id = ?", (priority_id,))
+    if not cursor.fetchone():
+        print("Invalid priority ID!")
+        return
+    cursor.execute("INSERT INTO Tasks (description, category_id, priority_id) VALUES (?, ?, ?)",
+                   (description, category_id, priority_id))
     conn.commit()
     print("Task added!")
 
 def view_tasks(conn):
-    """Displays all tasks with categories."""
+    """Displays all tasks with categories and priorities."""
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT t.task_id, t.description, t.is_completed, c.category_name
-        FROM Tasks t JOIN Categories c ON t.category_id = c.category_id
+        SELECT t.task_id, t.description, t.is_completed, c.category_name, p.priority_name
+        FROM Tasks t
+        JOIN Categories c ON t.category_id = c.category_id
+        JOIN Priority p ON t.priority_id = p.priority_id
     """)
     tasks = cursor.fetchall()
     if not tasks:
@@ -63,7 +69,7 @@ def view_tasks(conn):
     print("Tasks:")
     for task in tasks:
         status = "Yes" if task[2] else "No"
-        print(f"ID: {task[0]}, Description: {task[1]}, Category: {task[3]}, Completed: {status}")
+        print(f"ID: {task[0]}, Description: {task[1]}, Category: {task[3]}, Priority: {task[4]}, Completed: {status}")
 
 def mark_complete(conn, task_id):
     """Marks a task as completed."""
@@ -102,10 +108,11 @@ def main():
         if choice == "1":
             desc = input("Description: ")
             cat_id = input("Category ID (1=Work, 2=School): ")
+            pri_id = input("Priority ID (1=High, 2=Medium, 3=Low): ")
             try:
-                add_task(conn, desc, int(cat_id))
+                add_task(conn, desc, int(cat_id), int(pri_id))
             except ValueError:
-                print("Invalid category ID!")
+                print("Invalid category or priority ID!")
         elif choice == "2":
             view_tasks(conn)
         elif choice == "3":
