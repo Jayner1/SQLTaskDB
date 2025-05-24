@@ -20,12 +20,19 @@ def table_exists(conn, table_name):
     return cursor.fetchone() is not None
 
 def initialize_db(conn):
-    """Initializes database with tables if they don't exist."""
+    """Initializes database with tables and sample data if needed."""
     if not table_exists(conn, "Categories"):
         execute_sql_file(conn, "sql/create_tables.sql")
-        print("Created tables: Categories, Tasks")
+        execute_sql_file(conn, "sql/insert_data.sql")
+        print("Created tables and inserted sample data")
     else:
-        print("Tables already exist, skipping creation")
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Categories")
+        if cursor.fetchone()[0] == 0:
+            execute_sql_file(conn, "sql/insert_data.sql")
+            print("Inserted sample data")
+        else:
+            print("Tables and data already exist")
 
 def main():
     """Sets up database and tests connection."""
